@@ -95,6 +95,17 @@ pub trait Eip712 {
 
         Ok(keccak256(digest_input))
     }
+
+      fn encode_eip712_domain_separator(&self, domain_separator: [u8; 32]) -> Result<[u8; 32], Self::Error> {
+        // encode the digest to be compatible with solidity abi.encodePacked()
+        // See: https://github.com/gakonst/ethers-rs/blob/master/examples/permit_hash.rs#L72
+
+        let struct_hash = self.struct_hash()?;
+
+        let digest_input = [&[0x19, 0x01], &domain_separator[..], &struct_hash[..]].concat();
+
+        Ok(keccak256(digest_input))
+    }
 }
 
 /// Eip712 Domain attributes used in determining the domain separator;
